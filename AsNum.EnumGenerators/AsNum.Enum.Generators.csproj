@@ -15,11 +15,11 @@
 		<!--为false 不会生成版本信息-->
 		<GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 		<!--CPS_SUP.Change, Version=0.0.0.11, Culture=neutral, PublicKeyToken=null 中的 Version-->
-		<AssemblyVersion>1.0.0.3</AssemblyVersion>
+		<AssemblyVersion>1.0.0.4</AssemblyVersion>
 		<!--NUGET 包版本-->
-		<PackageVersion>1.0.0.3</PackageVersion>
+		<PackageVersion>1.0.0.4</PackageVersion>
 		<!--文件->属性->文件版本-->
-		<FileVersion>1.0.0.3</FileVersion>
+		<FileVersion>1.0.0.4</FileVersion>
 
 		<LangVersion>12</LangVersion>
 

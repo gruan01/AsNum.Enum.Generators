@@ -48,6 +48,8 @@ public class EnumGenerator : IIncrementalGenerator
                     //var symbolName = $"{symbol!.ContainingNamespace}.{symbol.Name}";
 
                     var memberAttribute = new Dictionary<string, string>();
+                    var resources = new Dictionary<string, string>();
+
                     foreach (var member in enumSymbol.GetMembers())
                     {
                         if (member is not IFieldSymbol field || field.ConstantValue is null)
@@ -59,12 +61,24 @@ public class EnumGenerator : IIncrementalGenerator
                                 continue;
 
                             foreach (var namedArgument in attribute.NamedArguments)
+                            {
                                 if (namedArgument.Key.Equals("Name", StringComparison.OrdinalIgnoreCase) &&
                                     namedArgument.Value.Value?.ToString() is { } dn)
                                 {
                                     memberAttribute.Add(member.Name, dn);
-                                    break;
+                                    //break;
                                 }
+
+                                //var a = (INamedTypeSymbol)namedArgument.Value.Value;
+                                //var b = a.OriginalDefinition;
+
+                                if (namedArgument.Key.Equals("ResourceType", StringComparison.OrdinalIgnoreCase)
+                                    && namedArgument.Value.Value is INamedTypeSymbol t
+                                )
+                                {
+                                    resources.Add(member.Name, t.OriginalDefinition.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
+                                }
+                            }
                         }
                     }
 
@@ -79,7 +93,15 @@ namespace {ns}
     /// 
     /// </summary>
     public static class {fileName}_EnumExtensions
-    {{");
+    {{
+        
+        private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, System.Resources.ResourceManager> resManagers = new();
+
+        private static string Get(string key, Type resourceType, System.Globalization.CultureInfo culture = null)
+        {{
+            return resManagers.GetOrAdd(key, (k) => new System.Resources.ResourceManager(resourceType)).GetString(key, culture);
+        }}
+");
 
                     //ToStringFast
                     ToStringFast(sourceBuilder, symbolName, e);
@@ -91,7 +113,7 @@ namespace {ns}
                     IsDefinedString(sourceBuilder, e, symbolName);
 
                     //ToDisplay string
-                    ToDisplay(sourceBuilder, symbolName, e, memberAttribute);
+                    ToDisplay(sourceBuilder, symbolName, e, memberAttribute, resources);
 
                     //GetValues
                     GetValuesFast(sourceBuilder, symbolName, e);
@@ -130,15 +152,20 @@ namespace {ns}
     /// <param name="symbolName"></param>
     /// <param name="e"></param>
     /// <param name="memberAttribute"></param>
-    private static void ToDisplay(StringBuilder sourceBuilder, string symbolName, EnumDeclarationSyntax e,
-        Dictionary<string, string> memberAttribute)
+    private static void ToDisplay(
+            StringBuilder sourceBuilder,
+            string symbolName,
+            EnumDeclarationSyntax e,
+            Dictionary<string, string> memberAttribute,
+            Dictionary<string, string> resourceTypes
+        )
     {
         sourceBuilder.Append($@"
 
         /// <summary>
         /// 
         /// </summary>
-        public static string ToDisplayFast(this {symbolName} states)
+        public static string ToDisplayFast(this {symbolName} states, System.Globalization.CultureInfo culture = null)
         {{
             return states switch
             {{
@@ -146,13 +173,21 @@ namespace {ns}
         foreach (var member in e.Members)
         {
             var display = memberAttribute
-                              .FirstOrDefault(r =>
-                                  r.Key.Equals(member.Identifier.ValueText, StringComparison.OrdinalIgnoreCase))
-                              .Value
-                          ?? member.Identifier.ValueText;
+                              .FirstOrDefault(r => r.Key.Equals(member.Identifier.ValueText, StringComparison.OrdinalIgnoreCase))
+                              .Value ?? member.Identifier.ValueText;
 
-            sourceBuilder.AppendLine(
-                $@"                {symbolName}.{member.Identifier.ValueText} => ""{display}"",");
+            var res = resourceTypes
+                              .FirstOrDefault(r => r.Key.Equals(member.Identifier.ValueText, StringComparison.OrdinalIgnoreCase))
+                              .Value;
+
+            if (res == null)
+            {
+                sourceBuilder.AppendLine($@"                {symbolName}.{member.Identifier.ValueText} => ""{display}"",");
+            }
+            else
+            {
+                sourceBuilder.AppendLine($@"                {symbolName}.{member.Identifier.ValueText} => Get(""{display}"", typeof({res}), culture) ?? ""{display}"",");
+            }
         }
 
         sourceBuilder.Append(

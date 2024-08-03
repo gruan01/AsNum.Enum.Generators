@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnitTests.Properties;
 
 namespace AAA;
 
@@ -57,4 +58,28 @@ public enum Includes
     /// </summary>
     [Description("property_ids_expanded")]
     PropertyIDsExpanded = 1 << 3,
+}
+
+
+[Flags]
+public enum FlagsEnum
+{
+    [Display(Name = "aa", ResourceType = typeof(Resources))]
+    A = 1 << 0,
+    [Display(Name = "bb")]
+    B = 1 << 1,
+
+    [Display(Name = "cc")]
+    C = 1 << 2,
+
+
+    [Display(Name = "AB")]
+    AB = A | B,
+
+    [Display(Name = "AC")]
+    AC = A | C,
+    //[Display(Name = "BC")]
+    //BC = B | C,
+    //[Display(Name = "ABC")]
+    //ABC = A | B |C
 }
