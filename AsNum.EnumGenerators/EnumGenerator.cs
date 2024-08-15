@@ -44,6 +44,12 @@ public class EnumGenerator : IIncrementalGenerator
                         continue;
 
                     var symbol = semanticModel.GetDeclaredSymbol(e);
+                    //只针对 public 的枚举，
+                    //否则像 WebService 自动生成的代码，有很多 internal 的枚举，
+                    //生成的代码会报可见级别不一致的错。
+                    if (symbol.DeclaredAccessibility != Accessibility.Public)
+                        continue;
+
                     var symbolName = symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
                     //var symbolName = $"{symbol!.ContainingNamespace}.{symbol.Name}";
 
