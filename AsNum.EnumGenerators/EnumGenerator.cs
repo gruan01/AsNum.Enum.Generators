@@ -130,6 +130,9 @@ namespace {ns}
                     //GetLength
                     GetLengthFast(sourceBuilder, e);
 
+                    //
+                    GetValueFast(sourceBuilder, symbolName, e);
+
                     sourceBuilder.Append(@"
     }
 }
@@ -351,6 +354,34 @@ namespace {ns}
 ");
 
         sourceBuilder.Append(@"
+        }");
+    }
+
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="sourceBuilder"></param>
+    /// <param name="e"></param>
+    private static void GetValueFast(StringBuilder sourceBuilder, string symbolName, EnumDeclarationSyntax e)
+    {
+        sourceBuilder.Append($@"
+        /// <summary>
+        /// 
+        /// </summary>
+        public static {symbolName} GetValueFast(string name)
+        {{            
+            var a = name.ToUpper();
+            return a switch 
+            {{
+");
+
+        foreach (var member in e.Members.Select(x => x.Identifier.ValueText))
+        {
+            var n = member.ToUpper();
+            sourceBuilder.AppendLine($@"                ""{n}"" => {symbolName}.{member},");
+        }
+        sourceBuilder.Append(@"            };
         }");
     }
 }

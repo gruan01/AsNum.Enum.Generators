@@ -34,6 +34,8 @@ public class EnumGeneratorTest
         var aaaa = FlagsEnum.A.ToDisplayFast();
         var aaaaa = FlagsEnum.A.ToDisplayFast(enUs);
 
+        global__AAA_BBB_Includes_EnumExtensions.GetValuesFast();
+
         //var a = Includes.PropertyIDsExpanded.ToDisplayFast();
         //var b = Test.Includes.F.ToDisplayFast();
         //var c = AAA.Includes.Standard.ToDisplayFast();
@@ -72,6 +74,7 @@ public class EnumGeneratorTest
         var ee = FlagsEnum.A | FlagsEnum.B;
 
         var eeeee = ee.ToStringFast();
+        
 
         var a = ee.HasFlag(FlagsEnum.A | FlagsEnum.C);
         var b = ee.HasFlag(FlagsEnum.A);
@@ -97,4 +100,5 @@ public static class Extensions
                     .Select(combo => (new[] { element })
                         .Concat(combo)));
     }
+
 }
