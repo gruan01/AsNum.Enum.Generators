@@ -381,7 +381,9 @@ namespace {ns}
             var n = member.ToUpper();
             sourceBuilder.AppendLine($@"                ""{n}"" => {symbolName}.{member},");
         }
-        sourceBuilder.Append(@"            };
+        sourceBuilder.Append(@"
+                        _ => throw new ArgumentOutOfRangeException(nameof(name), name, null)
+            };
         }");
     }
 }

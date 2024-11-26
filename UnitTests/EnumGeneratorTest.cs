@@ -74,7 +74,7 @@ public class EnumGeneratorTest
         var ee = FlagsEnum.A | FlagsEnum.B;
 
         var eeeee = ee.ToStringFast();
-        
+
 
         var a = ee.HasFlag(FlagsEnum.A | FlagsEnum.C);
         var b = ee.HasFlag(FlagsEnum.A);
